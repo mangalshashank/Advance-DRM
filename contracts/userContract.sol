@@ -38,17 +38,14 @@ contract UserDataStorage {
     function getDocHashByUserId(string memory _userId) public view returns (string memory) {
         return docHash[_userId];
     }
-
     // Function to get a document path by userId
     function getDocPath(string memory _userId) public view returns (string memory) {
         return docPath[_userId];
     }
-
     // Function to check if a document hash exists without providing the userId
     function docHashExists(string memory _message) public view returns (bool) {
         return docHashExistsMap[_message];
     }
-
     // Function to check if a userId exists
     function checkUserIdExists(string memory _userId) public view returns (bool) {
         return userIdExists[_userId];
