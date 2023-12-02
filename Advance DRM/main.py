@@ -19,7 +19,6 @@ temp_address = 0
 @app.route('/')
 def home():
     return render_template('home.html')
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -41,38 +40,59 @@ def blend_images(img1, img2, factor):
     # Convert images to numpy arrays
     img1_array = np.array(img1)
     img2_array = np.array(img2)
-
+    res = watermarking.apply_watermark(img1_array,img2_array,factor)
     # Perform image blending
-    blended_img_array = (img1_array * (1 - factor) + img2_array * factor).astype(np.uint8)
-    blended_img = Image.fromarray(blended_img_array)
-
+    blended_img = Image.fromarray(res)
     # Ensure the blended image is in RGB mode
     blended_img = blended_img.convert('RGB')
-
     return blended_img
 
-@app.route('/applyWatermark', methods=['GET', 'POST'])
-def applyWatermark():
-    return render_template('apply-watermark.html') 
-
+def extract_watermark(img1, img2, factor):
+    # Convert images to numpy arrays
+    img1_array = np.array(img1)
+    img2_array = np.array(img2)
+    res = watermarking.extract_watermark(img1_array,img2_array,factor)
+    # Perform image blending
+    blended_img = Image.fromarray(res)
+    # Ensure the blended image is in RGB mode
+    blended_img = blended_img.convert('RGB')
+    return blended_img
 
 @app.route('/blend_images', methods=['POST'])
 def blend_images_route():
     factor = float(request.form['blend_factor'])
     img1_file = request.files['image1']
     img2_file = request.files['image2']
-
     img1 = Image.open(img1_file)
     img2 = Image.open(img2_file)
-
     blended_img = blend_images(img1, img2, factor)
-
     # Convert the blended image to bytes for displaying in HTML
     buffered = BytesIO()
     blended_img.save(buffered, format="JPEG")
     img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-
     return jsonify({'blended_img': img_str})
+
+
+@app.route('/applyWatermark', methods=['GET', 'POST'])
+def applyWatermark():
+    return render_template('apply-watermark.html') 
+
+@app.route('/extractWatermark', methods=['GET', 'POST'])
+def extractWatermark():
+    if request.method == 'POST':
+        factor = float(request.form['blend_factor'])
+        img1_file = request.files['image1']
+        img2_file = request.files['image2']
+        img1 = Image.open(img1_file)
+        img2 = Image.open(img2_file)
+        blended_img = extract_watermark(img1,img2,factor)
+        # Convert the blended image to bytes for displaying in HTML
+        buffered = BytesIO()
+        blended_img.save(buffered, format="JPEG")
+        img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
+        return jsonify({'blended_img': img_str})
+    return render_template('extract-watermark.html')
+
 
 
 @app.route('/upload-marksheet', methods=['GET', 'POST'])
