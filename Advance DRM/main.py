@@ -37,36 +37,42 @@ def upload():
     return render_template('check-credential.html')
 
 
-def adjust_brightness(img, factor):
-    # Convert the image to RGB mode
-    img = img.convert('RGB')
+def blend_images(img1, img2, factor):
+    # Convert images to numpy arrays
+    img1_array = np.array(img1)
+    img2_array = np.array(img2)
 
-    # Adjust brightness using numpy
-    img_array = np.array(img)
-    adjusted_img_array = img_array * factor
-    adjusted_img_array = np.clip(adjusted_img_array, 0, 255).astype(np.uint8)
-    adjusted_img = Image.fromarray(adjusted_img_array)
+    # Perform image blending
+    blended_img_array = (img1_array * (1 - factor) + img2_array * factor).astype(np.uint8)
+    blended_img = Image.fromarray(blended_img_array)
 
-    return adjusted_img
+    # Ensure the blended image is in RGB mode
+    blended_img = blended_img.convert('RGB')
+
+    return blended_img
 
 @app.route('/applyWatermark', methods=['GET', 'POST'])
 def applyWatermark():
     return render_template('apply-watermark.html') 
 
 
-@app.route('/adjust_brightness', methods=['POST'])
-def adjust_brightness_route():
-    factor = float(request.form['brightness_factor'])
-    img_file = request.files['image']
-    img = Image.open(img_file)
-    adjusted_img = adjust_brightness(img, factor)
-    
-    # Convert the adjusted image to bytes for displaying in HTML
+@app.route('/blend_images', methods=['POST'])
+def blend_images_route():
+    factor = float(request.form['blend_factor'])
+    img1_file = request.files['image1']
+    img2_file = request.files['image2']
+
+    img1 = Image.open(img1_file)
+    img2 = Image.open(img2_file)
+
+    blended_img = blend_images(img1, img2, factor)
+
+    # Convert the blended image to bytes for displaying in HTML
     buffered = BytesIO()
-    adjusted_img.save(buffered, format="JPEG")
+    blended_img.save(buffered, format="JPEG")
     img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-    
-    return jsonify({'adjusted_img': img_str})
+
+    return jsonify({'blended_img': img_str})
 
 
 @app.route('/upload-marksheet', methods=['GET', 'POST'])
