@@ -1,0 +1,25 @@
+<!-- templates/upload.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Credentials</title>
+    <!-- You can link additional stylesheets or scripts for this page if needed -->
+</head>
+<body>
+    <!-- it will ask user to enter his wallet address and private key -->
+    <form action="{{ url_for('upload') }}" method="POST">
+        <div>
+            <label for="wallet_address">Wallet Address</label>
+            <input type="text" name="wallet_address" id="wallet_address" required>
+        </div>
+        <div>
+            <label for="password" >Password</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

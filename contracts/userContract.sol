@@ -18,37 +18,49 @@ contract UserDataStorage {
     mapping(string => string) private docHash;
     mapping(string => string) private docPath;
     mapping(string => string) private username;
+    mapping(string => uint256) private accessDuration; // New mapping for access duration
 
-    // Function to set user details including userId, username, document hash, and document path
-    function setUserDetails(string memory _userId, string memory _userName, string memory _documentHash, string memory _documentPath) public onlyOwner {
+    // Function to set user details including userId, username, document hash, document path, and access duration
+    function setUserDetails(
+        string memory _userId,
+        string memory _userName,
+        string memory _documentHash,
+        string memory _documentPath,
+        uint256 _duration
+    ) public onlyOwner {
         require(bytes(_userId).length > 0, "User ID cannot be empty");
         require(!userIdExists[_userId], "User ID already taken");
-
         userIdExists[_userId] = true;
         username[_userId] = _userName;
-
         require(!docHashExistsMap[_documentHash], "Document hash already exists");
         docHash[_userId] = _documentHash;
         docHashExistsMap[_documentHash] = true;
-
         docPath[_userId] = _documentPath;
+        accessDuration[_userId] = block.timestamp + _duration; // Set access duration expiration timestamp
     }
 
     // Function to get a document hash by userId
     function getDocHashByUserId(string memory _userId) public view returns (string memory) {
         return docHash[_userId];
     }
+
     // Function to get a document path by userId
     function getDocPath(string memory _userId) public view returns (string memory) {
         return docPath[_userId];
     }
+
     // Function to check if a document hash exists without providing the userId
     function docHashExists(string memory _message) public view returns (bool) {
         return docHashExistsMap[_message];
     }
+
     // Function to check if a userId exists
     function checkUserIdExists(string memory _userId) public view returns (bool) {
         return userIdExists[_userId];
     }
 
+    // Function to check if the user is valid to access the document based on the current date
+    function isUserValid(string memory _userId) public view returns (bool) {
+        return accessDuration[_userId] > block.timestamp;
+    }
 }
