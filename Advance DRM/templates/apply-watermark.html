@@ -1,0 +1,54 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Brightness Adjuster</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Brightness Adjuster</h1>
+    
+    <form id="imageForm" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <label for="brightness">Brightness:</label>
+        <!-- Update the input field for brightness -->
+        <input type="range" id="brightness" name="brightness_factor" min="0" max="2" step="0.1" value="1">
+
+        <span id="brightnessValue">1.0</span>
+    </form>
+    
+    <img id="adjustedImage" src="" alt="Adjusted Image">
+
+    <script>
+        const form = document.getElementById('imageForm');
+        const brightnessSlider = document.getElementById('brightness');
+        const brightnessValue = document.getElementById('brightnessValue');
+        const adjustedImage = document.getElementById('adjustedImage');
+
+        form.addEventListener('change', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            fetch('/adjust_brightness', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                adjustedImage.src = data.adjusted_img;
+            });
+        });
+
+        brightnessSlider.addEventListener('input', () => {
+            brightnessValue.innerText = brightnessSlider.value;
+        });
+    </script>
+</body>
+</html>
