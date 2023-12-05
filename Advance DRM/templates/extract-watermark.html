@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,27 +12,17 @@
     </style>
 </head>
 <body>
-    <h1>Extract Watermark</h1>
-    
+    <h1>Extract Watermark From Image</h1>
     <form id="imageForm" enctype="multipart/form-data">
-        <label for="image1">Original Image:</label>
-        <input type="file" name="image1" accept="image/*" required>
-        <label for="image2">Watermarked Image:</label>
-        <input type="file" name="image2" accept="image/*" required>
-        <label for="blend">Beta Extraction:</label>
-        <input type="range" id="blend" name="blend_factor" min="0.1" max="9.9" step="0.1" value="0.5">
-
-        <span id="blendValue">0.5</span>
+        <label for="watermarkedImage">Watermarked Image:</label>
+        <input type="file" name="watermarkedImage" accept="image/*" required>
     </form>    
-    <img id="blendedImage" src="" alt="Blended Image">
-
+    <img id="watermark" src="" alt="watermark">
 
     <script>
         const form = document.getElementById('imageForm');
-        const blendSlider = document.getElementById('blend');
-        const blendValue = document.getElementById('blendValue');
-        const blendedImage = document.getElementById('blendedImage');
-        const downloadButton = document.getElementById('downloadButton');
+        const watermarkedImage = document.getElementById('watermarkedImage');
+        const watermark = document.getElementById('watermark');
 
         form.addEventListener('change', (event) => {
             event.preventDefault();
@@ -45,13 +34,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                blendedImage.src = data.blended_img;
+                watermark.src = data.watermark;
             });
         });
-
-        blendSlider.addEventListener('input', () => {
-            blendValue.innerText = blendSlider.value;
-        });
+        watermarkedImage.addEventListener('input', () => {});
 
     </script>
 </body>

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request,jsonify,url_for,redirect
 import sqlite3
 from io import BytesIO
 from base64 import b64encode
-import test
+import watermark
 
 app = Flask(__name__)
 DATABASE = 'user_database.db'
@@ -31,24 +31,24 @@ def upload():
 @app.route('/applyWatermark', methods=['GET', 'POST'])
 def applyWatermark():
     if request.method == 'POST':
-        img1 = request.files['image1']
-        img2 = request.files['image2']
-        blended_img = test.apply_watermark(img1,img2)
+        img1 = request.files['coverImage']
+        img2 = request.files['watermarkImage']
+        blended_img = watermark.apply_watermark(img1,img2)
         buffered = BytesIO()
         blended_img.save(buffered, format="JPEG")
         img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-        return jsonify({'blended_img': img_str})
+        return jsonify({'watermarked_img': img_str})
     return render_template('apply-watermark.html') 
 
 @app.route('/extractWatermark', methods=['GET', 'POST'])
 def extractWatermark():
     if request.method == 'POST':
-        img2 = request.files['image2']
-        blended_img = test.recover_watermark(img2)
+        watermarkedImage = request.files['watermarkedImage']
+        blended_img = watermark.recover_watermark(watermarkedImage)
         buffered = BytesIO()
         blended_img.save(buffered, format="JPEG")
         img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-        return jsonify({'blended_img': img_str})
+        return jsonify({'watermark': img_str})
     return render_template('extract-watermark.html')
 
 @app.route('/upload-marksheet', methods=['GET', 'POST'])

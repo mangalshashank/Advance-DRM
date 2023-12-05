@@ -1,10 +1,9 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Blending</title>
+    <title>Image Watermarking</title>
     <style>
         img {
             max-width: 100%;
@@ -13,58 +12,43 @@
     </style>
 </head>
 <body>
-    <h1>Image Blending</h1>
-    
+    <h1>Image Watermarking</h1>
     <form id="imageForm" enctype="multipart/form-data">
-        <label for="image1">Image 1:</label>
-        <input type="file" name="image1" accept="image/*" required>
-        
-        <label for="image2">Image 2:</label>
-        <input type="file" name="image2" accept="image/*" required>
-
-        <label for="blend">Blend:</label>
-        <input type="range" id="blend" name="blend_factor" min="0.00" max="0.99" step="0.01" value="0.05">
-
-        <span id="blendValue">0.05</span>
+        <label for="coverImage">Cover Image </label>
+        <input type="file" name="coverImage" accept="image/*" required>
+        <label for="watermarkImage">Watermark Image</label>
+        <input type="file" name="watermarkImage" accept="image/*" required>
+        <label for="applyButton">Watermarked Image :</label>
+        <input type="button" id="applyButton" name="applyButton" value="Apply Watermarking"> 
     </form>
     
-    <img id="blendedImage" src="" alt="Blended Image">
-
-    <button id="downloadButton">Download Blended Image</button>
+    <img id="watermarkedImage" src="" alt="Watermarked Image">
+    <button id="downloadButton">Download Watermarked Image</button>
 
     <script>
         const form = document.getElementById('imageForm');
-        const blendSlider = document.getElementById('blend');
-        const blendValue = document.getElementById('blendValue');
-        const blendedImage = document.getElementById('blendedImage');
+        const applyButton = document.getElementById('applyButton');
+        const watermarkedImage = document.getElementById('watermarkedImage');
         const downloadButton = document.getElementById('downloadButton');
-
         form.addEventListener('change', (event) => {
             event.preventDefault();
-
             const formData = new FormData(form);
-            fetch('/blend_images', {
+            fetch('/applyWatermark', {
                 method: 'POST',
                 body: formData,
             })
             .then(response => response.json())
             .then(data => {
-                blendedImage.src = data.blended_img;
+                watermarkedImage.src = data.watermarked_img;
             });
         });
-
-        blendSlider.addEventListener('input', () => {
-            blendValue.innerText = blendSlider.value;
-        });
-
+        applyButton.addEventListener('input', () => {});
         downloadButton.addEventListener('click', () => {
-            const imageUrl = blendedImage.src;
+            const imageUrl = watermarkedImage.src;
             if (imageUrl) {
-                // Create a link element
                 const downloadLink = document.createElement('a');
                 downloadLink.href = imageUrl;
-                downloadLink.download = 'blended_image.jpg';
-                
+                downloadLink.download = 'watermarked_image.jpg';
                 // Trigger a click on the link to start the download
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
