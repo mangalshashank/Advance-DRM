@@ -18,15 +18,10 @@
         <input type="file" name="watermarkedImage" accept="image/*" required>
     </form>    
     <img id="watermark" src="" alt="watermark">
-
     <script>
         const form = document.getElementById('imageForm');
-        const watermarkedImage = document.getElementById('watermarkedImage');
-        const watermark = document.getElementById('watermark');
-
         form.addEventListener('change', (event) => {
             event.preventDefault();
-
             const formData = new FormData(form);
             fetch('/extractWatermark', {
                 method: 'POST',
@@ -37,8 +32,6 @@
                 watermark.src = data.watermark;
             });
         });
-        watermarkedImage.addEventListener('input', () => {});
-
     </script>
 </body>
 </html>

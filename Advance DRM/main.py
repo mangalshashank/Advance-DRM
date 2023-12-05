@@ -33,11 +33,12 @@ def applyWatermark():
     if request.method == 'POST':
         img1 = request.files['coverImage']
         img2 = request.files['watermarkImage']
-        blended_img = watermark.apply_watermark(img1,img2)
-        buffered = BytesIO()
-        blended_img.save(buffered, format="JPEG")
-        img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-        return jsonify({'watermarked_img': img_str})
+        if img1 and img2:
+            blended_img = watermark.apply_watermark(img1,img2)
+            buffered = BytesIO()
+            blended_img.save(buffered, format="JPEG")
+            img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
+            return jsonify({'watermarked_img': img_str})
     return render_template('apply-watermark.html') 
 
 @app.route('/extractWatermark', methods=['GET', 'POST'])
