@@ -7,11 +7,9 @@ from scipy.fftpack import idct
 model = 'haar'
 level = 1
 
-
 def convert_image(image_name, size):
     img = Image.open( image_name).resize((size, size), 1)
     img = img.convert('L')
-    img.save( image_name)
     image_array = np.array(img.getdata(), dtype=float).reshape((size, size))
     return image_array
 
@@ -82,9 +80,7 @@ def apply_watermark(image_path, watermark_path):
     image_array_H=pywt.waverec2(coeffs_image, model)
     image_array_copy = image_array_H.clip(0, 255)
     image_array_copy = image_array_copy.astype("uint8")
-    img = Image.fromarray(image_array_copy)
-    #img.save('image_with_watermark.jpg')
-    return img
+    return Image.fromarray(image_array_copy)
 
 def recover_watermark(watermarked_image):
     watermarked_image = convert_image(watermarked_image, 2048)
@@ -94,6 +90,4 @@ def recover_watermark(watermarked_image):
     dct_watermarked_coeff = apply_dct(coeffs_watermarked_image[0])
     watermark_array = get_watermark(dct_watermarked_coeff, 128)
     watermark_array =  np.uint8(watermark_array)
-    img = Image.fromarray(watermark_array)
-    #img.save('recovered_watermark.jpg')
-    return img
+    return Image.fromarray(watermark_array)
