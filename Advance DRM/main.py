@@ -1,15 +1,12 @@
-from flask import Flask, render_template, request,jsonify,url_for,redirect,send_file
+from flask import Flask, render_template, request,jsonify,url_for,redirect
 import sqlite3
 import numpy as np
-import cv2
 import watermarking
-from werkzeug.utils import secure_filename
-import os
-from PIL import Image
 from PIL import Image
 from io import BytesIO
 import numpy as np
 from base64 import b64encode
+import test
 
 app = Flask(__name__)
 DATABASE = 'user_database.db'
@@ -19,6 +16,7 @@ temp_address = 0
 @app.route('/')
 def home():
     return render_template('home.html')
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -32,7 +30,6 @@ def upload():
             return redirect(url_for('upload_marksheet'))
         else:
             return render_template('invalid-address.html')
-        
     return render_template('check-credential.html')
 
 
@@ -58,23 +55,25 @@ def extract_watermark(img1, img2, factor):
     blended_img = blended_img.convert('RGB')
     return blended_img
 
-@app.route('/blend_images', methods=['POST'])
-def blend_images_route():
-    factor = float(request.form['blend_factor'])
-    img1_file = request.files['image1']
-    img2_file = request.files['image2']
-    img1 = Image.open(img1_file)
-    img2 = Image.open(img2_file)
-    blended_img = blend_images(img1, img2, factor)
-    # Convert the blended image to bytes for displaying in HTML
-    buffered = BytesIO()
-    blended_img.save(buffered, format="JPEG")
-    img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-    return jsonify({'blended_img': img_str})
-
 
 @app.route('/applyWatermark', methods=['GET', 'POST'])
 def applyWatermark():
+    if request.method == 'POST':
+        factor = float(request.form['blend_factor'])
+        img1_file = request.files['image1']
+        img2_file = request.files['image2']
+        img1 = Image.open(img1_file)
+        img2 = Image.open(img2_file)
+        img1.save('Advance DRM/temporary_cover.jpg')
+        img2.save('Advance DRM/temporary_watermark.jpg')
+        blended_img = test.apply_watermark('Advance DRM/temporary_cover.jpg','Advance DRM/temporary_watermark.jpg')
+        #blended_img = blend_images(img1, img2, factor)
+        # Convert the blended image to bytes for displaying in HTML
+        buffered = BytesIO()
+        blended_img.save(buffered, format="JPEG")
+        img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
+        return jsonify({'blended_img': img_str})
+
     return render_template('apply-watermark.html') 
 
 @app.route('/extractWatermark', methods=['GET', 'POST'])
@@ -85,7 +84,9 @@ def extractWatermark():
         img2_file = request.files['image2']
         img1 = Image.open(img1_file)
         img2 = Image.open(img2_file)
-        blended_img = extract_watermark(img1,img2,factor)
+        img2.save('Advance DRM/temporary_watermarked.jpg')
+       # blended_img = extract_watermark(img1,img2,factor)
+        blended_img = test.recover_watermark('Advance DRM/temporary_watermarked.jpg')
         # Convert the blended image to bytes for displaying in HTML
         buffered = BytesIO()
         blended_img.save(buffered, format="JPEG")
