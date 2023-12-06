@@ -4,47 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Watermarking</title>
-    <style>
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='apply-watermark.css') }}">
 </head>
 <body>
     <h1>Image Watermarking</h1>
     <form id="imageForm" enctype="multipart/form-data">
-        <label for="coverImage">Cover Image </label>
-        <input type="file" name="coverImage" accept="image/*" required>
+        <label for="coverImage">Cover Image</label>
+        <label class="custom-file-upload">
+            <input type="file" name="coverImage" accept="image/*" required onchange="displayFilename(this, 'coverFilename')">
+            <span id="coverFilename">Choose File</span>
+        </label>
         <label for="watermarkImage">Watermark Image</label>
-        <input type="file" name="watermarkImage" accept="image/*" required>
+        <label class="custom-file-upload">
+            <input type="file" name="watermarkImage" accept="image/*" required onchange="displayFilename(this, 'watermarkFilename')">
+            <span id="watermarkFilename">Choose File</span>
+        </label>
+        <button id="downloadButton" style="display: none;">Download Watermarked Image</button>
     </form>
     
-    <img id="watermarkedImage" src="" alt="Watermarked Image">
-    <button id="downloadButton">Download Watermarked Image</button>
+    <img id="watermarkedImage" src="" alt="Watermarked Image" style="display: none;">
+    <div id="loadingOverlay" style="display: none;">
+        <div id="loadingSpinner"></div>
+    </div>
 
     <script>
+        function displayFilename(input, targetSpanId) {
+            const span = document.getElementById(targetSpanId);
+            if (input.files.length > 0) {
+                span.textContent = input.files[0].name;
+            } else {
+                span.textContent = 'Choose File';
+            }
+        }
+
         const form = document.getElementById('imageForm');
         const downloadButton = document.getElementById('downloadButton');
+        const watermarkedImage = document.getElementById('watermarkedImage');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
         form.addEventListener('change', (event) => {
             event.preventDefault();
-            const formData = new FormData(form);
-            fetch('/applyWatermark', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                watermarkedImage.src = data.watermarked_img;
-            });
+
+            // Check if both files are uploaded
+            const coverImage = form.querySelector('input[name="coverImage"]');
+            const watermarkImage = form.querySelector('input[name="watermarkImage"]');
+            if (coverImage.files.length > 0 && watermarkImage.files.length > 0) {
+                loadingOverlay.style.display = 'flex';
+
+                const formData = new FormData(form);
+                fetch('/applyWatermark', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    watermarkedImage.style.display = 'inline-block';
+                    watermarkedImage.src = data.watermarked_img;
+                    // Show download button after loading is complete
+                    downloadButton.style.display = 'inline-block';
+                    loadingOverlay.style.display = 'none';
+                });
+            }
         });
+
         downloadButton.addEventListener('click', () => {
             const imageUrl = watermarkedImage.src;
             if (imageUrl) {
                 const downloadLink = document.createElement('a');
                 downloadLink.href = imageUrl;
                 downloadLink.download = 'watermarked_image.jpg';
-                // Trigger a click on the link to start the download
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);

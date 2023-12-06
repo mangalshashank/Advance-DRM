@@ -4,24 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extract Watermark</title>
-    <style>
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='extract-watermark.css') }}">
 </head>
 <body>
     <h1>Extract Watermark From Image</h1>
     <form id="imageForm" enctype="multipart/form-data">
         <label for="watermarkedImage">Watermarked Image:</label>
-        <input type="file" name="watermarkedImage" accept="image/*" required>
+        <label for="upload" class="custom-file-upload">
+            Upload Image
+        </label>
+        <input type="file" id="upload" name="watermarkedImage" accept="image/*" required>
+        <div id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
     </form>    
-    <img id="watermark" src="" alt="watermark">
+    <img id="watermark" src="" alt="watermark" style="display: none;" >
     <script>
         const form = document.getElementById('imageForm');
+        const watermarkImage = document.getElementById('watermark');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
         form.addEventListener('change', (event) => {
             event.preventDefault();
+            loadingOverlay.style.display = 'flex';
+            
             const formData = new FormData(form);
             fetch('/extractWatermark', {
                 method: 'POST',
@@ -29,7 +35,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                watermark.src = data.watermark;
+                watermarkImage.style.display = 'block';
+                watermarkImage.src = data.watermark;
+                loadingOverlay.style.display = 'none';
             });
         });
     </script>

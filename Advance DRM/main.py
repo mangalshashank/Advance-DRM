@@ -6,6 +6,7 @@ import watermark
 import getHash
 import userDataStorage
 from PIL import Image
+import os
 
 app = Flask(__name__)
 DATABASE = 'user_database.db'
@@ -24,7 +25,6 @@ def upload():
         cursor.execute('SELECT * FROM admin WHERE walletAddress = ? and password = ?', (wallet_address,password,))
         user = cursor.fetchone()
         if user is not None:
-            temp_address = wallet_address
             return redirect(url_for('upload_marksheet'))
         else:
             return render_template('invalid-address.html')
@@ -87,6 +87,7 @@ def validDocument():
         document.filename =  'temp.png'
         document.save('Advance DRM/storedMarksheet/'+document.filename)
         get_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/temp.png')
+        os.remove('Advance DRM/storedMarksheet/temp.png')
         validHash  = userDataStorage.sc.docHashExists(get_hash).call()
         return jsonify({'validDocument': validHash})
     return render_template('valid-Document.html')
