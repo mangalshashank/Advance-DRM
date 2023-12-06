@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document Validator</title>
+</head>
+<body>
+    <h1>Please upload the marksheet</h1>
+    <form id="Form" enctype="multipart/form-data">
+        <label for="document">Upload Your Marksheet</label>
+        <input type="file" name="document" accept="image/*" required>
+    </form>
+    <button type="submit" id = "Submit"  value="Submit">Submit</button>
+    <h2 id = "result"></h2>
+    <script>
+        const submitButton = document.getElementById('Submit');
+        submitButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const formData = new FormData(Form);
+            fetch('/validDocument', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if( data.validDocument )
+                    result.innerHTML = "Document is valid !";
+                else
+                    result.innerHTML = "Document is not shared by this portal";
+            });
+        });
+    </script>
+</body>
+</html>

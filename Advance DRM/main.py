@@ -80,5 +80,17 @@ def getMarksheet():
         return jsonify({'document': img_str,'userName': user_name, 'validUser': valid_user})
     return render_template('get-marksheet.html')
 
+@app.route('/validDocument', methods=['GET', 'POST'])
+def validDocument():
+    if request.method == 'POST':
+        document = request.files['document']
+        document.filename =  'temp.png'
+        document.save('Advance DRM/storedMarksheet/'+document.filename)
+        get_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/temp.png')
+        validHash  = userDataStorage.sc.docHashExists(get_hash).call()
+        return jsonify({'validDocument': validHash})
+    return render_template('valid-Document.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
