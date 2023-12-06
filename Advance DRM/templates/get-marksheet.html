@@ -4,28 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Marksheets</title>
-    <style>
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='get-marksheet.css') }}">
 </head>
 <body>
-    <h1>DRM Based Marsheet Sharing System</h1>
+    <h1>DRM Based Marksheets Sharing System</h1>
     <form id="Form" enctype="multipart/form-data">
-        <label for="scholarNumber">Scholar Number </label>
-        <input type="text" name="scholarNumber"required>
+        <label for="scholarNumber">Scholar Number</label>
+        <input type="text" name="scholarNumber" required>
     </form>
     
     <h3 id="Username"></h3>
-    <h3 id = "validUser"> Legitimate User </h3>
-    <img id="Marksheet" src="" alt="Marksheet">
+    <h3 id="validUser"></h3>
+    <img id="Marksheet" src="" alt="Marksheet" style="display: none;">
     <button id="downloadButton">Download Marksheet</button>
 
     <script>
         const form = document.getElementById('Form');
         const downloadButton = document.getElementById('downloadButton');
+        const validUserMessage = document.getElementById('validUser');
         form.addEventListener('change', (event) => {
             event.preventDefault();
             const formData = new FormData(form);
@@ -35,13 +31,21 @@
             })
             .then(response => response.json())
             .then(data => {
+                Marksheet.style.display = 'block'; // Show the marksheet
                 Marksheet.src = data.document;
                 Username.innerHTML = data.userName;
-                validUser.innerHTML = data.validUser;
+
+                if (data.validUser) {
+                    validUserMessage.innerHTML = "You have access to the marksheet";
+                    downloadButton.style.display = 'inline-block'; // Show the download button
+                } else {
+                    validUserMessage.innerHTML = "You don't have access to the marksheet";
+                }
             });
         });
+
         downloadButton.addEventListener('click', () => {
-            const imageUrl = Marksheet.src
+            const imageUrl = Marksheet.src;
             if (imageUrl) {
                 const downloadLink = document.createElement('a');
                 downloadLink.href = imageUrl;
