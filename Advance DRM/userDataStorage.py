@@ -1,7 +1,7 @@
 from web3 import Web3
 import json
 
-contract_address = "0x6873fac90CB70553F802F3E78b3d42e1dEC84a7d"
+contract_address = "0xd74d83b4c3223165B7f8FFA40C7895504E7BBC61"
 contract_path = 'F:/major project/build/contracts/UserDataStorage.json'
 rpc_endpoint = "http://127.0.0.1:7545"
 
@@ -21,12 +21,17 @@ else:
 w3.eth.default_account = w3.eth.accounts[0]
 contract = w3.eth.contract(address=contract_address, abi=contract_abi)
 
+
 # Example: Call the setUserDetails function
-# user_id = "123"
+# user_id = "112"
 # user_name = "Alice"
 # document_hash = "0x123456789abcdef"
 # document_path = "/path/to/document"
 
+
 sc = contract.functions
-#sc.setUserDetails("13","Alic","0x123asdf6789abcdef","/path/to/p2").transact()
+# sc.setUserDetails("13211","Alic2d","0x1232a11sdf6789abcdef","/path/to/p122",1231244).transact()
+
 #sc.getDocHashByUserId(user_id).call()
+
+

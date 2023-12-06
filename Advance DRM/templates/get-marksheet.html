@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Marksheets</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>DRM Based Marsheet Sharing System</h1>
+    <form id="Form" enctype="multipart/form-data">
+        <label for="scholarNumber">Scholar Number </label>
+        <input type="text" name="scholarNumber"required>
+    </form>
+    
+    <h3 id="Username"></h3>
+    <h3 id = "validUser"> Legitimate User </h3>
+    <img id="Marksheet" src="" alt="Marksheet">
+    <button id="downloadButton">Download Marksheet</button>
+
+    <script>
+        const form = document.getElementById('Form');
+        const downloadButton = document.getElementById('downloadButton');
+        form.addEventListener('change', (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch('/getMarksheet', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                Marksheet.src = data.document;
+                Username.innerHTML = data.userName;
+                validUser.innerHTML = data.validUser;
+            });
+        });
+        downloadButton.addEventListener('click', () => {
+            const imageUrl = Marksheet.src
+            if (imageUrl) {
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imageUrl;
+                downloadLink.download = 'marksheet.jpg';
+                // Trigger a click on the link to start the download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            }
+        });
+    </script>
+</body>
+</html>

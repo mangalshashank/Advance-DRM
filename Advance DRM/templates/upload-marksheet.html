@@ -1,10 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome Message</title>
+    <title>Advance DRM portal</title>
 </head>
 <body>
-    <h1>Welcome to our website!</h1>
-    <p>Thank you for visiting. We hope you have a great experience.</p>
+    <h1>Please fill the necessary details</h1>
+    <form id="marksheetForm" enctype="multipart/form-data">
+        <label for="userId">Scholar Number </label>
+        <input type="text" name="userId" required>
+        <label for="userName">Name of Student </label>
+        <input type="text" name="userName"required>
+        <label for="document">Marksheet</label>
+        <input type="file" name="document" accept="image/*" required>
+    </form>
+    <button type="submit" id = "marksheetSubmit"  value="Submit">Submit</button>
+    <script>
+        const submitButton = document.getElementById('marksheetSubmit');
+        submitButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const formData = new FormData(marksheetForm);
+            fetch('/uploadMarksheet', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            });
+        });
+    </script>
+
+
 </body>
 </html>

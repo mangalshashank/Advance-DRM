@@ -3,11 +3,13 @@ import sqlite3
 from io import BytesIO
 from base64 import b64encode
 import watermark
+import getHash
+import userDataStorage
+from PIL import Image
 
 app = Flask(__name__)
 DATABASE = 'user_database.db'
 connect = sqlite3.connect(DATABASE,check_same_thread=False)
-temp_address = 0
 
 @app.route('/')
 def home():
@@ -52,9 +54,31 @@ def extractWatermark():
         return jsonify({'watermark': img_str})
     return render_template('extract-watermark.html')
 
-@app.route('/upload-marksheet', methods=['GET', 'POST'])
+@app.route('/uploadMarksheet', methods=['GET', 'POST'])
 def upload_marksheet():
+    if request.method == 'POST':
+        user_id = request.form.get('userId')
+        user_name = request.form.get('userName')
+        document = request.files['document']
+        document.filename = user_id + '.png'
+        document.save('Advance DRM/storedMarksheet/'+document.filename)
+        document_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/'+document.filename)
+        userDataStorage.sc.setUserDetails(user_id,user_name,document_hash,'Advance DRM/storedMarksheet/'+document.filename,1231244).transact()
     return render_template('upload-marksheet.html')
+
+@app.route('/getMarksheet', methods=['GET', 'POST'])
+def getMarksheet():
+    if request.method == 'POST':
+        userId = request.form.get('scholarNumber')
+        document_path = userDataStorage.sc.getDocPath(userId).call()
+        user_name = userDataStorage.sc.getUserName(userId).call()
+        valid_user = userDataStorage.sc.isUserValid(userId).call()
+        document_image = Image.open(document_path)
+        buffered = BytesIO()
+        document_image.save(buffered, format="JPEG")
+        img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
+        return jsonify({'document': img_str,'userName': user_name, 'validUser': valid_user})
+    return render_template('get-marksheet.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
