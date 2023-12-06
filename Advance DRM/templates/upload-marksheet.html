@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advance DRM portal</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='upload-marksheet.css') }}">
+
 </head>
 <body>
     <h1>Please fill the necessary details</h1>
@@ -9,15 +13,25 @@
         <label for="userId">Scholar Number </label>
         <input type="text" name="userId" required>
         <label for="userName">Name of Student </label>
-        <input type="text" name="userName"required>
+        <input type="text" name="userName" required>
         <label for="document">Marksheet</label>
         <input type="file" name="document" accept="image/*" required>
+        <button type="submit" id="marksheetSubmit" value="Submit">Submit</button>
     </form>
-    <button type="submit" id = "marksheetSubmit"  value="Submit">Submit</button>
+    <h3 id="Success"></h3>
+    <!-- Loading overlay HTML -->
+    <div id="loadingOverlay" style="display: none;">
+        <div id="loadingSpinner"></div>
+    </div>
+
     <script>
         const submitButton = document.getElementById('marksheetSubmit');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
         submitButton.addEventListener('click', (event) => {
             event.preventDefault();
+            loadingOverlay.style.display = 'flex'; // Show loading overlay
+
             const formData = new FormData(marksheetForm);
             fetch('/uploadMarksheet', {
                 method: 'POST',
@@ -25,11 +39,15 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                console.log(data.success)
+                loadingOverlay.style.display = 'none'; // Hide loading overlay
+                if (data.success) {
+                    Success.innerHTML = "Marksheet uploaded successfully";
+                } else {
+                    Success.innerHTML = "Marksheet upload failed";
+                }
             });
         });
     </script>
-
-
 </body>
 </html>

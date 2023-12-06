@@ -64,6 +64,7 @@ def upload_marksheet():
         document.save('Advance DRM/storedMarksheet/'+document.filename)
         document_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/'+document.filename)
         userDataStorage.sc.setUserDetails(user_id,user_name,document_hash,'Advance DRM/storedMarksheet/'+document.filename,1231244).transact()
+        return jsonify({'success': True})
     return render_template('upload-marksheet.html')
 
 @app.route('/getMarksheet', methods=['GET', 'POST'])
@@ -77,7 +78,7 @@ def getMarksheet():
         buffered = BytesIO()
         document_image.save(buffered, format="JPEG")
         img_str = "data:image/jpeg;base64," + b64encode(buffered.getvalue()).decode()
-        return jsonify({'document': img_str,'userName': user_name, 'validUser': valid_user})
+        return jsonify({'document': img_str,'userName': user_name,'validUser': valid_user})
     return render_template('get-marksheet.html')
 
 @app.route('/validDocument', methods=['GET', 'POST'])
