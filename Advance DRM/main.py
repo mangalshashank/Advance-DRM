@@ -18,8 +18,8 @@ def home():
     return render_template('home.html')
 
 # LinkedIn API credentials
-CLIENT_ID = '86pvg78zp7n1yl'
-CLIENT_SECRET = 'Zdw6LlhqHCBkg2zF'
+CLIENT_ID = 'CLIENT_ID'
+CLIENT_SECRET = 'CLIENT_SECRET'
 REDIRECT_URI = 'http://localhost:5000/callback'  # This should match with your LinkedIn app settings
 
 @app.route('/linkedInlogin', methods=['GET', 'POST'])
