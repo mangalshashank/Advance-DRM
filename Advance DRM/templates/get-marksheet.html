@@ -8,12 +8,15 @@
 </head>
 <body>
     <h1>DRM Based Marksheets Sharing System</h1>
+    <div id="userInfo">
+        <img id="userPicture" src="{{ user.picture }}" alt="User Picture">
+        <h2 id="userName">{{ user.name }}</h2>
+    </div>
     <form id="Form" enctype="multipart/form-data">
         <label for="scholarNumber">Scholar Number</label>
         <input type="text" name="scholarNumber" required>
     </form>
-    
-    <h3 id="Username"></h3>
+
     <h3 id="validUser"></h3>
     <img id="Marksheet" src="" alt="Marksheet" style="display: none;">
     <button id="downloadButton">Download Marksheet</button>
@@ -31,15 +34,18 @@
             })
             .then(response => response.json())
             .then(data => {
-                Marksheet.style.display = 'block'; // Show the marksheet
-                Marksheet.src = data.document;
-                Username.innerHTML = data.userName;
-
-                if (data.validUser) {
-                    validUserMessage.innerHTML = "You have access to the marksheet";
+                if (data.validUser > 0) {
+                    const remainingSeconds = data.validUser;
+                    const secondsPerDay = 86400; // 24 * 60 * 60
+                    const days = Math.floor(remainingSeconds / secondsPerDay);
+                    validUserMessage.innerHTML = `You have access to the marksheet for ${days} days`;
+                    Marksheet.style.display = 'block'; // Show the marksheet
+                    Marksheet.src = data.document;
                     downloadButton.style.display = 'inline-block'; // Show the download button
                 } else {
-                    validUserMessage.innerHTML = "You don't have access to the marksheet";
+                    Marksheet.style.display = 'none'; // Hide the marksheet
+                    validUserMessage.innerHTML = "Your access is expired !";
+                   
                 }
             });
         });
