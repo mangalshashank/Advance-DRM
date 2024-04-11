@@ -58,7 +58,8 @@ contract UserDataStorage {
     }
 
     // Function to check if the user is valid to access the document based on the current date
-    function isUserValid(string memory _userId) public view returns (bool) {
-        return accessDuration[_userId] > block.timestamp;
+    function isUserValid(string memory _userId) public view returns (uint256) {
+        uint256 duration = accessDuration[_userId]-block.timestamp;
+        return duration;
     }
 }
