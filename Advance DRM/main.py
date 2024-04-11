@@ -59,18 +59,6 @@ def callback():
     else:
         return "Error in callback"
 
-@app.route('/verify_email', methods=['POST'])
-def verify_email():
-    email = request.form['email']
-    cursor = connect.cursor()
-    cursor.execute('SELECT * FROM validemail WHERE emailId = ?', (email,))
-    user = cursor.fetchone()
-    if user is not None:
-    # Redirect back to the index page or render a success page
-        return redirect(url_for('getMarksheet'))
-    else:
-        return render_template('invalid-address.html')
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -120,7 +108,7 @@ def upload_marksheet():
         document.save('Advance DRM/storedMarksheet/'+document.filename)
         document_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/'+document.filename)
         cursor = connect.cursor()
-        cursor.execute('INSERT INTO validemail (emailId) VALUES (?)', (userEmail,))
+        cursor.execute('INSERT INTO validemail (emailId, scholarNumber) VALUES (?,?)', (userEmail,user_id))
         connect.commit()
         userDataStorage.sc.setUserDetails(user_id,user_name,document_hash,'Advance DRM/storedMarksheet/'+document.filename,1231244).transact()
         return jsonify({'success': True})
@@ -129,7 +117,13 @@ def upload_marksheet():
 @app.route('/getMarksheet', methods=['GET', 'POST'])
 def getMarksheet():
     if request.method == 'POST':
-        userId = request.form.get('scholarNumber')
+        data = request.get_json()
+        user_email = data['email']
+        cursor = connect.cursor()
+        cursor.execute('SELECT * FROM validemail WHERE emailId = ?', (user_email,))
+        userId = str(cursor.fetchone()[1])
+        if userId is None:
+            return jsonify({'error': 'Invalid Email'})
         document_path = userDataStorage.sc.getDocPath(userId).call()
         user_name = userDataStorage.sc.getUserName(userId).call()
         valid_user = userDataStorage.sc.isUserValid(userId).call()
@@ -151,7 +145,6 @@ def validDocument():
         validHash  = userDataStorage.sc.docHashExists(get_hash).call()
         return jsonify({'validDocument': validHash})
     return render_template('valid-Document.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
