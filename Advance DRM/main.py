@@ -8,6 +8,7 @@ import userDataStorage
 from PIL import Image
 import os
 import requests
+import secret
 
 app = Flask(__name__)
 DATABASE = 'user_database.db'
@@ -18,8 +19,8 @@ def home():
     return render_template('home.html')
 
 # LinkedIn API credentials
-CLIENT_ID = '86pvg78zp7n1yl'
-CLIENT_SECRET = 'Zdw6LlhqHCBkg2zF'
+CLIENT_ID = secret.id
+CLIENT_SECRET = secret.secret
 REDIRECT_URI = 'http://localhost:5000/callback'  # This should match with your LinkedIn app settings
 
 @app.route('/linkedInlogin', methods=['GET', 'POST'])
@@ -52,7 +53,7 @@ def callback():
             profile_url = 'https://api.linkedin.com/v2/userinfo'
             response = requests.get(profile_url, headers=headers)
             profile_data = response.json()
-            return render_template('linkedIn-details.html',user=profile_data)
+            return render_template('get-marksheet.html',user=profile_data)
         else:
             return "Failed to obtain access token"
     else:
@@ -61,7 +62,6 @@ def callback():
 @app.route('/verify_email', methods=['POST'])
 def verify_email():
     email = request.form['email']
-    print(email)
     cursor = connect.cursor()
     cursor.execute('SELECT * FROM validemail WHERE emailId = ?', (email,))
     user = cursor.fetchone()
@@ -114,10 +114,14 @@ def upload_marksheet():
     if request.method == 'POST':
         user_id = request.form.get('userId')
         user_name = request.form.get('userName')
+        userEmail = request.form.get('userEmail')
         document = request.files['document']
         document.filename = user_id + '.png'
         document.save('Advance DRM/storedMarksheet/'+document.filename)
         document_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/'+document.filename)
+        cursor = connect.cursor()
+        cursor.execute('INSERT INTO validemail (emailId) VALUES (?)', (userEmail,))
+        connect.commit()
         userDataStorage.sc.setUserDetails(user_id,user_name,document_hash,'Advance DRM/storedMarksheet/'+document.filename,1231244).transact()
         return jsonify({'success': True})
     return render_template('upload-marksheet.html')
