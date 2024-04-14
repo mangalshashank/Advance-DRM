@@ -8,18 +8,11 @@
 
 </head>
 <body>
-    <h1>Please fill the necessary details</h1>
     <form id="marksheetForm" enctype="multipart/form-data">
         <label for="userId">Scholar Number </label>
         <input type="text" name="userId" required>
-        <label for="userName">Name of Student </label>
-        <input type="text" name="userName" required>
-        <label for="validity">Validity in Days </label>
+        <label for="validity">Enter Validity in days</label>
         <input type="number" name="validity" required>
-        <label for="userEmail">LinkedIn Email Id  of Student </label>
-        <input type="email" name="userEmail" required>
-        <label for="document">Marksheet</label>
-        <input type="file" name="document" accept="image/*" required>
         <button type="submit" id="marksheetSubmit" value="Submit">Submit</button>
     </form>
     <h3 id="Success"></h3>
@@ -35,20 +28,19 @@
         submitButton.addEventListener('click', (event) => {
             event.preventDefault();
             loadingOverlay.style.display = 'flex'; // Show loading overlay
-
             const formData = new FormData(marksheetForm);
-            fetch('/uploadMarksheet', {
+            fetch('/extendedValidity', {
                 method: 'POST',
                 body: formData,
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data.success)
-                loadingOverlay.style.display = 'none'; // Hide loading overlay
-                if (data.success) {
-                    Success.innerHTML = "Marksheet uploaded successfully";
+                if( data.Success){
+                    loadingOverlay.style.display = 'none'; // Hide loading overlay
+                    Success.innerHTML = "Validity extended successfully";
                 } else {
-                    Success.innerHTML = "Marksheet upload failed";
+                    loadingOverlay.style.display = 'none'; // Hide loading overlay
+                    Success.innerHTML = "Validity extension failed";
                 }
             });
         });

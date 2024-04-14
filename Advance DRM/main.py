@@ -73,6 +73,33 @@ def upload():
             return render_template('invalid-address.html')
     return render_template('check-credential.html')
 
+@app.route('/extendValidity', methods=['GET', 'POST'])
+def extendValidity():
+    if request.method == 'POST':
+        wallet_address = request.form['wallet_address']
+        password = request.form['password']
+        cursor = connect.cursor()
+        cursor.execute('SELECT * FROM admin WHERE walletAddress = ? and password = ?', (wallet_address,password,))
+        user = cursor.fetchone()
+        if user is not None:
+            return redirect(url_for('extendedValidity'))
+        else:
+            return render_template('invalid-address.html')
+    return render_template('check-credential-extended.html')
+
+@app.route('/extendedValidity', methods=['GET', 'POST'])
+def extendedValidity():
+    if request.method == 'POST':
+        user_id = request.form.get('userId')
+        validity = request.form.get('validity')
+        ok = False
+        if validity is not None and int(validity) > 0:
+            ok = True
+            validity = int(validity)*86400
+            userDataStorage.sc.extendDuration(user_id,validity).transact()
+        return jsonify({'Success': ok})
+    return render_template('extend-validity.html')
+
 @app.route('/applyWatermark', methods=['GET', 'POST'])
 def applyWatermark():
     if request.method == 'POST':
@@ -103,6 +130,7 @@ def upload_marksheet():
         user_id = request.form.get('userId')
         user_name = request.form.get('userName')
         userEmail = request.form.get('userEmail')
+        validity = int(request.form.get('validity'))*86400
         document = request.files['document']
         document.filename = user_id + '.png'
         document.save('Advance DRM/storedMarksheet/'+document.filename)
@@ -110,7 +138,7 @@ def upload_marksheet():
         cursor = connect.cursor()
         cursor.execute('INSERT INTO validemail (emailId, scholarNumber) VALUES (?,?)', (userEmail,user_id))
         connect.commit()
-        userDataStorage.sc.setUserDetails(user_id,user_name,document_hash,'Advance DRM/storedMarksheet/'+document.filename,1231244).transact()
+        userDataStorage.sc.setUserDetails(user_id,user_name,document_hash,'Advance DRM/storedMarksheet/'+document.filename,validity).transact()
         return jsonify({'success': True})
     return render_template('upload-marksheet.html')
 

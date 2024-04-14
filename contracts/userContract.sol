@@ -18,7 +18,7 @@ contract UserDataStorage {
     // mapping(string => string) private docHash;
     mapping(string => string) private docPath;
     mapping(string => string) private username;
-    mapping(string => uint256) private accessDuration; // New mapping for access duration
+    mapping(string => int256) private accessDuration; // New mapping for access duration
 
     // Function to set user details including userId, username, document hash, document path, and access duration
     function setUserDetails(
@@ -26,7 +26,7 @@ contract UserDataStorage {
         string memory _userName,
         string memory _documentHash,
         string memory _documentPath,
-        uint256 _duration
+        int256 _duration
     ) public onlyOwner {
         require(bytes(_userId).length > 0, "User ID cannot be empty");
         require(!userIdExists[_userId], "User ID already taken");
@@ -35,7 +35,7 @@ contract UserDataStorage {
         require(!docHashExistsMap[_documentHash], "Document hash already exists");
         docHashExistsMap[_documentHash] = true;
         docPath[_userId] = _documentPath;
-        accessDuration[_userId] = block.timestamp + _duration; // Set access duration expiration timestamp
+        accessDuration[_userId] = int256(block.timestamp) + _duration; // Set access duration expiration timestamp
     }
 
     // Function to get a document path by userId
@@ -58,8 +58,12 @@ contract UserDataStorage {
     }
 
     // Function to check if the user is valid to access the document based on the current date
-    function isUserValid(string memory _userId) public view returns (uint256) {
-        uint256 duration = accessDuration[_userId]-block.timestamp;
-        return duration;
+    function isUserValid(string memory _userId) public view returns (int256) {
+        int256 dur = accessDuration[_userId] - int256(block.timestamp);
+        return dur;
+    }
+
+    function extendDuration(string memory _userId, int256 _duration) public onlyOwner {
+        accessDuration[_userId] = int256(block.timestamp) + _duration;
     }
 }
