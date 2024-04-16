@@ -1,7 +1,7 @@
 from web3 import Web3
 import json
 
-contract_address = "0xE0A0e99c5cd2FDe176BAa347d77E5475AC650EC0"
+contract_address = "0xde338BdFb0A0d52E0D5A485D89B8475Dd36fd40e"
 contract_path = 'F:/major project/build/contracts/UserDataStorage.json'
 rpc_endpoint = "http://127.0.0.1:7545"
 
