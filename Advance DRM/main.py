@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request,jsonify,url_for,redirect
+from flask import Flask, render_template, request,jsonify, send_file,url_for,redirect
 import sqlite3
 from io import BytesIO
 from base64 import b64encode
@@ -173,6 +173,32 @@ def validDocument():
         validHash  = userDataStorage.sc.docHashExists(get_hash).call()
         return jsonify({'validDocument': validHash})
     return render_template('valid-Document.html')
+
+@app.route('/downloadMarksheet', methods= ['POST'])
+def downloadMarksheet():
+    if request.method == 'POST':
+       # data = request.get_json()
+       # user_email = data['email']
+        user_email = request.form.get('email')
+        cursor = connect.cursor()
+        cursor.execute('SELECT * FROM validemail WHERE emailId = ?', (user_email,))
+        userId = str(cursor.fetchone()[1])
+        if userId is None:
+            return jsonify({'error': 'Invalid Email'})
+        document_path = userDataStorage.sc.getDocPath(userId).call()
+        image = Image.open(document_path)
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        buffer.seek(0)
+            # Send the buffer as a file
+        return send_file(
+            buffer,
+            mimetype='image/png',
+            download_name='processed_image.png',
+            as_attachment=True
+        )
+    return render_template('get-marksheet.html')
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

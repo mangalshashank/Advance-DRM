@@ -16,7 +16,10 @@
 
     <h3 id="validUser"></h3>
     <img id="Marksheet" src="" alt="Marksheet" style="display: none;">
-    <button id="downloadButton">Download Marksheet</button>
+    <form action="{{url_for('downloadMarksheet')}}" method="POST"  enctype="multipart/form-data">
+        <input type="hidden" name="email" value="{{ user.email }}">
+        <input type="submit" value="Download Marksheet">
+    </form>
 
     <script>
         const form = document.getElementById('Form');
@@ -48,18 +51,38 @@
             });
         });
 
-        downloadButton.addEventListener('click', () => {
-            const imageUrl = Marksheet.src;
-            if (imageUrl) {
-                const downloadLink = document.createElement('a');
-                downloadLink.href = imageUrl;
-                downloadLink.download = 'marksheet.png';
-                // Trigger a click on the link to start the download
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            }
-        });
+        // downloadButton.addEventListener('click', () => {
+        //     // const imageUrl = Marksheet.src;
+        //     // if (imageUrl) {
+        //     //     const downloadLink = document.createElement('a');
+        //     //     downloadLink.href = imageUrl;
+        //     //     downloadLink.download = 'marksheet.png';
+        //     //     // Trigger a click on the link to start the download
+        //     //     document.body.appendChild(downloadLink);
+        //     //     downloadLink.click();
+        //     //     document.body.removeChild(downloadLink);
+        //     // }
+        //     const userEmail = document.getElementById('userEmail').textContent;
+        //     fetch('/downloadMarksheet', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({ email: userEmail })
+        //     })
+        //     .then(blob => {
+        //         // Create a temporary anchor element to trigger download
+        //         const downloadLink = document.createElement('a');
+        //         downloadLink.href = URL.createObjectURL(blob);
+        //         downloadLink.download = 'marksheet.png';
+        //         downloadLink.click();
+        //         URL.revokeObjectURL(downloadLink.href); // Clean up
+        //     })
+        //     .catch(error => {
+        //         console.error('There was a problem with the fetch operation:', error);
+        //         // Handle errors as needed
+        //     });
+        // });
     </script>
 </body>
 </html>
