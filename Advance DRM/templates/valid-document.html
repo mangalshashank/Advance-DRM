@@ -36,7 +36,10 @@
             .then(data => {
                 loadingOverlay.style.display = 'none'; // Hide loading overlay
                 if (data.validDocument) {
-                    result.innerHTML = "Document is valid!";
+                    if (data.validUser > 0)
+                        result.innerHTML = "Document is valid!";
+                    else 
+                        result.innerHTML = "Document is expired!";
                 } else {
                     result.innerHTML = "Document is not shared by this portal";
                 }

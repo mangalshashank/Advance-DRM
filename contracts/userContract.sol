@@ -15,7 +15,7 @@ contract UserDataStorage {
 
     mapping(string => bool) private userIdExists;
     mapping(string => bool) private docHashExistsMap;
-    // mapping(string => string) private docHash;
+    mapping(string => string) private docHash;
     mapping(string => string) private docPath;
     mapping(string => string) private username;
     mapping(string => int256) private accessDuration; // New mapping for access duration
@@ -35,6 +35,7 @@ contract UserDataStorage {
         require(!docHashExistsMap[_documentHash], "Document hash already exists");
         docHashExistsMap[_documentHash] = true;
         docPath[_userId] = _documentPath;
+        docHash[_documentHash] = _userId; // Set the document hash to the userId
         accessDuration[_userId] = int256(block.timestamp) + _duration; // Set access duration expiration timestamp
     }
 
@@ -50,6 +51,9 @@ contract UserDataStorage {
     // Function to check if a document hash exists without providing the userId
     function docHashExists(string memory _message) public view returns (bool) {
         return docHashExistsMap[_message];
+    }
+    function docHashUserId(string memory _message) public view returns (string memory) {
+        return docHash[_message];
     }
 
     // Function to check if a userId exists

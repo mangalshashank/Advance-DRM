@@ -93,7 +93,7 @@ def extendedValidity():
         user_id = request.form.get('userId')
         validity = request.form.get('validity')
         ok = False
-        if validity is not None and int(validity) > 0:
+        if validity is not None and int(validity) >= 0:
             ok = True
             validity = int(validity)*86400
             userDataStorage.sc.extendDuration(user_id,validity).transact()
@@ -171,7 +171,14 @@ def validDocument():
         get_hash = getHash.calculate_sha256('Advance DRM/storedMarksheet/temp.png')
         os.remove('Advance DRM/storedMarksheet/temp.png')
         validHash  = userDataStorage.sc.docHashExists(get_hash).call()
-        return jsonify({'validDocument': validHash})
+        if validHash == True:
+            userId = userDataStorage.sc.docHashUserId(get_hash).call()
+            validUser = userDataStorage.sc.isUserValid(userId).call()
+            return jsonify({'validDocument': validHash ,'validUser': validUser})
+        else:
+            return jsonify({'validDocument': validHash})
+        
+        
     return render_template('valid-Document.html')
 
 @app.route('/downloadMarksheet', methods= ['POST'])
@@ -186,6 +193,9 @@ def downloadMarksheet():
         if userId is None:
             return jsonify({'error': 'Invalid Email'})
         document_path = userDataStorage.sc.getDocPath(userId).call()
+        valid_user = userDataStorage.sc.isUserValid(userId).call()
+        if valid_user <= 0:
+            return jsonify({'error': 'Document is expired'})
         image = Image.open(document_path)
         buffer = BytesIO()
         image.save(buffer, format='PNG')
